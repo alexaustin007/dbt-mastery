@@ -1,0 +1,2 @@
+# Place CSV files here
+# Run 'dbt seed' to load them into Snowflake as tables

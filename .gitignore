@@ -1,0 +1,24 @@
+# dbt
+target/
+dbt_packages/
+logs/
+*.log
+
+# Python
+*.pyc
+__pycache__/
+.venv/
+venv/
+*.egg-info/
+
+# OS
+.DS_Store
+.idea/
+.vscode/
+
+# Credentials (never commit!)
+profiles.yml
+
+# Data files (too large, already in Snowflake)
+dataset/
+adhoc

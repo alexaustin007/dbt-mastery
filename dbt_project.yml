@@ -1,0 +1,39 @@
+name: 'dbt_mastery'
+version: '1.0.0'
+
+# This setting configures which "profile" dbt uses for this project.
+profile: 'dbt_mastery'
+
+# These configurations specify where dbt should look for different types of files.
+model-paths: ["models"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+# Configuring models
+models:
+  dbt_mastery:
+    # Staging models - raw data cleaning
+    staging:
+      +materialized: view
+      +schema: staging
+
+    # Intermediate models - business logic
+    intermediate:
+      +materialized: view
+      +schema: intermediate
+
+    # Marts - final analytics tables
+    marts:
+      +materialized: table
+      +schema: marts
+      finance:
+        +schema: finance
+      marketing:
+        +schema: marketing
