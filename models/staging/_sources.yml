@@ -1,13 +1,12 @@
 version: 2
 
 # Define your raw data sources here
-# This is where you tell dbt where your raw data lives in Snowflake
+# This is where you tell dbt where your raw data lives in MySQL
 
 sources:
   - name: raw
-    description: Raw data tables in Snowflake
-    database: DBT_MASTERY
-    schema: PUBLIC
+    description: Raw data tables in MySQL
+    schema: dbt_mastery
     tables:
-      - name: RAW_FLIGHTS_DATA
+      - name: raw_flights_data
         description: Raw flight routes data loaded from CSV
