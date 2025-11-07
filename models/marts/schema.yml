@@ -1,0 +1,93 @@
+version: 2
+
+models:
+    - name: fct_flights
+      description: Fact table containing all flight details with enriched route and airline information
+      columns:
+        - name: flight_key
+          description: Primary key - MD5 hash of flight_number, origin, destination, and date
+          tests:
+            - unique
+            - not_null
+
+        # Foreign Keys - Test relationships
+        - name: origin_airport_key
+          description: Foreign key to int_airports for origin
+          tests:
+            - not_null
+            - relationships:
+                to: ref('int_airports')
+                field: airport_key
+
+        - name: destination_airport_key
+          description: Foreign key to int_airports for destination
+          tests:
+            - not_null
+            - relationships:
+                to: ref('int_airports')
+                field: airport_key
+
+        - name: airline_key
+          description: Foreign key to int_airlines
+          tests:
+            - not_null
+            - relationships:
+                to: ref('int_airlines')
+                field: airline_key
+
+        # Core flight identifiers
+        - name: flight_number
+          description: Flight number identifier
+          tests:
+            - not_null
+
+        - name: flight_date
+          description: Date of the flight
+          tests:
+            - not_null
+
+        # Metrics
+        - name: distance_km
+          description: Flight distance in kilometers
+          tests:
+            - not_null
+            - dbt_utils.accepted_range:
+                min_value: 0
+
+        - name: seats
+          description: Number of seats on aircraft
+          tests:
+            - dbt_utils.accepted_range:
+                min_value: 0
+
+        - name: stops
+          description: Number of stops
+          tests:
+            - not_null
+            - dbt_utils.accepted_range:
+                min_value: 0
+                max_value: 10
+
+        # Enriched dimensions
+        - name: distance_category
+          description: Flight distance category
+          tests:
+            - accepted_values:
+                values: ['Short-haul', 'Medium-haul', 'Long-haul', 'Unknown']
+
+        - name: route_type
+          description: Domestic or International
+          tests:
+            - accepted_values:
+                values: ['Domestic', 'International']
+
+        - name: flight_type
+          description: Direct or with stops
+          tests:
+            - accepted_values:
+                values: ['Direct', 'With Stops']
+
+        - name: route_id
+          description: Route identifier (origin-destination)
+          tests:
+            - not_null

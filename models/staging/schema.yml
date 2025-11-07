@@ -1,0 +1,18 @@
+  models:
+    - name: stg_flights
+      columns:
+        - name: flight_date
+          tests:
+            - not_null  # No null dates
+
+        - name: distance_km
+          tests:
+            - not_null
+            - dbt_utils.accepted_range:  # Distance must be >= 0
+                min_value: 0
+
+        - name: origin_latitude
+          tests:
+            - dbt_utils.accepted_range:  # Latitude between -90 and 90
+                min_value: -90
+                max_value: 90

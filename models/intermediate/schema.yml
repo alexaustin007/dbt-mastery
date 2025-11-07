@@ -1,0 +1,123 @@
+
+version: 2
+
+models:
+    - name: int_airports
+      description: Deduplicated list of unique airports from origin and destination
+      columns:
+        - name: airport_key
+          description: MD5 hash of airport_code, serves as surrogate key
+          tests:
+            - unique
+            - not_null
+
+        - name: airport_code
+          description: Unique airport code (e.g., JFK, LAX)
+          tests:
+            - unique
+            - not_null
+
+        - name: city
+          description: Airport city name
+          tests:
+            - not_null
+
+        - name: country
+          description: Airport country name
+          tests:
+            - not_null
+
+        - name: region
+          description: Geographic region of the airport
+          tests:
+            - not_null
+
+        - name: latitude
+          description: Airport latitude coordinate
+          tests:
+            - not_null
+            - dbt_utils.accepted_range:
+                min_value: -90
+                max_value: 90
+
+        - name: longitude
+          description: Airport longitude coordinate
+          tests:
+            - not_null
+            - dbt_utils.accepted_range:
+                min_value: -180
+                max_value: 180
+
+    - name: int_airlines
+      description: Deduplicated list of unique airlines
+      columns:
+        - name: airline_key
+          description: MD5 hash of airline_code, serves as surrogate key
+          tests:
+            - unique
+            - not_null
+
+        - name: airline_code
+          description: Unique airline code (e.g., AA, UA, DL)
+          tests:
+            - unique
+            - not_null
+
+        - name: airline_name
+          description: Full airline name
+          tests:
+            - not_null
+
+    - name: int_routes_enriched
+      description: Flight routes enriched with calculated categories and classifications
+      columns:
+        - name: route_id
+          description: Unique route identifier (origin-destination pair)
+          tests:
+            - not_null
+
+        - name: origin_airport
+          description: Origin airport code
+          tests:
+            - not_null
+
+        - name: destination_airport
+          description: Destination airport code
+          tests:
+            - not_null
+
+        - name: distance_km
+          description: Flight distance in kilometers
+          tests:
+            - not_null
+            - dbt_utils.accepted_range:
+                min_value: 0
+
+        - name: distance_category
+          description: Categorization of flight distance
+          tests:
+            - not_null
+            - accepted_values:
+                values: ['Short-haul', 'Medium-haul', 'Long-haul', 'Unknown']
+
+        - name: route_type
+          description: Domestic or International classification
+          tests:
+            - not_null
+            - accepted_values:
+                values: ['Domestic', 'International']
+
+        - name: flight_type
+          description: Direct or with stops classification
+          tests:
+            - not_null
+            - accepted_values:
+                values: ['Direct', 'With Stops']
+
+        - name: stops
+          description: Number of stops on the route
+          tests:
+            - not_null
+            - dbt_utils.accepted_range:
+                min_value: 0
+                max_value: 10
