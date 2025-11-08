@@ -1,3 +1,8 @@
+{{ config(
+      materialized='incremental',
+      unique_key='flight_key'
+  ) }}
+
 WITH flights_base AS (
       SELECT
           flight_number,
@@ -130,4 +135,7 @@ WITH flights_base AS (
           ON fb.airline_code = a.airline_code
   )
 
+  {% if is_incremental() %}
+    WHERE fb.flight_date > (SELECT MAX(flight_date) FROM {{ this }})
+  {% endif %}
   SELECT * FROM final
