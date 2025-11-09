@@ -1,6 +1,5 @@
-WITH base_routes AS (
+  WITH base_routes AS (
       SELECT
-
           origin_airport,
           destination_airport,
           origin_country,
@@ -8,19 +7,16 @@ WITH base_routes AS (
           origin_region,
           destination_region,
 
-          distance_km,
-          stops,
-          aircraft_type,
-          codeshare,
-          flight_number,
-          airline_code,
-          airline_name,
-
-          flight_date,
-          flight_year,
-          flight_month,
-          flight_quarter
+          MIN(distance_km) as distance_km,
+          MIN(stops) as stops
       FROM {{ ref('stg_flights') }}
+      GROUP BY
+          origin_airport,
+          destination_airport,
+          origin_country,
+          destination_country,
+          origin_region,
+          destination_region
   ),
 
   enriched AS (
