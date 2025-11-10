@@ -133,9 +133,10 @@ WITH flights_base AS (
 
       LEFT JOIN airlines a
           ON fb.airline_code = a.airline_code
+          {% if is_incremental() %}
+          WHERE fb.flight_date > (SELECT MAX(flight_date) FROM {{ this }})
+          {% endif %}
   )
 
-  {% if is_incremental() %}
-    WHERE fb.flight_date > (SELECT MAX(flight_date) FROM {{ this }})
-  {% endif %}
+
   SELECT * FROM final
