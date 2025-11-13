@@ -5,8 +5,38 @@ version: 2
 
 sources:
   - name: raw
-    description: Raw data tables in MySQL
+    description: >
+      Raw data schema containing unprocessed flight route data loaded
+      directly from CSV files via MySQL LOAD DATA LOCAL INFILE.
+      This schema is managed outside of dbt.
     schema: dbt_mastery
     tables:
       - name: raw_flights_data
-        description: Raw flight routes data loaded from CSV
+        description: >
+          Raw flight routes data enriched with geographic and airline information.
+          Contains approximately 1.2 million flight route records.
+
+          Loading method: MySQL LOAD DATA LOCAL INFILE from routes_enriched.csv (214MB)
+          Update frequency: Static dataset (loaded once)
+          Record count: ~1.2M rows
+
+          This table serves as the single source of truth for all flight route
+          analytics in the dbt_mastery project.
+        columns:
+          - name: flight_date
+            description: Scheduled departure date of the flight
+
+          - name: flight_number
+            description: Flight number identifier from the airline
+
+          - name: airline_code
+            description: IATA airline code
+
+          - name: airline_name
+            description: Full airline name
+
+          - name: origin_airport
+            description: Origin airport IATA code
+
+          - name: distance_km
+            description: Flight distance in kilometers

@@ -1,18 +1,126 @@
-  models:
+version: 2  
+models:
     - name: stg_flights
+      description: >
+        Staging layer for raw flight route data. This model performs light 
+        transformations on the raw_flights_data source including renaming columns 
+        to follow naming conventions, type casting, and filtering out records 
+        with null critical fields. This is the foundation layer for all downstream 
+        flight analytics.
+
+        Source: raw_flights_data table (1.2M+ flight routes)
+        Materialization: View
+
       columns:
         - name: flight_date
+          description: >
+            The date when the flight is scheduled to depart. 
+            Part of the composite identifier for each flight record.
           tests:
             - not_null  # No null dates
+        - name: flight_number
+          description: >
+            Airline-specific flight number identifier (e.g., AA123, UA456).
+            Combined with date and route to uniquely identify a flight.
+
+        - name: airline_code
+          description: >
+            Two or three letter IATA airline code (e.g., AA for American Airlines, 
+            UA for United Airlines).
+
+        - name: airline_name
+          description: Full commercial name of the airline operating the flight.
+
+        - name: origin_airport
+          description: >
+            IATA airport code for the departure airport (e.g., JFK, LAX, ORD).
+
+        - name: origin_city
+          description: City name where the flight departs from.
+
+        - name: origin_country
+          description: Country name where the origin airport is located.
+
+        - name: origin_region
+          description: >
+            Geographic region classification for the origin airport 
+            (e.g., North America, Europe, Asia).
+
+        - name: origin_latitude
+          description: >
+            Latitude coordinate of the origin airport in decimal degrees.
+            Valid range: -90 to 90.
+          tests:
+            - dbt_utils.accepted_range:
+                min_value: -90
+                max_value: 90
+
+        - name: origin_longitude
+          description: >
+            Longitude coordinate of the origin airport in decimal degrees.
+            Valid range: -180 to 180.
+
+        - name: destination_airport
+          description: >
+            IATA airport code for the arrival airport (e.g., JFK, LAX, ORD).
+
+        - name: destination_city
+          description: City name where the flight arrives.
+
+        - name: destination_country
+          description: Country name where the destination airport is located.
+
+        - name: destination_region
+          description: >
+            Geographic region classification for the destination airport 
+            (e.g., North America, Europe, Asia).
+
+        - name: destination_latitude
+          description: >
+            Latitude coordinate of the destination airport in decimal degrees.
+            Valid range: -90 to 90.
+
+        - name: destination_longitude
+          description: >
+            Longitude coordinate of the destination airport in decimal degrees.
+            Valid range: -180 to 180.
 
         - name: distance_km
+          description: >
+            Great circle distance between origin and destination airports 
+            in kilometers. Used for route analysis and distance-based categorization.
           tests:
             - not_null
             - dbt_utils.accepted_range:  # Distance must be >= 0
                 min_value: 0
+        - name: seats
+          description: >
+            Total seat capacity of the aircraft operating this flight route.
+            Null values indicate unknown aircraft configuration.
 
-        - name: origin_latitude
-          tests:
-            - dbt_utils.accepted_range:  # Latitude between -90 and 90
-                min_value: -90
-                max_value: 90
+        - name: aircraft_type
+          description: >
+            Aircraft model/type operating this route (e.g., Boeing 737, Airbus A320).
+            May be null for some routes.
+
+        - name: codeshare
+          description: >
+            Indicates whether this flight is a codeshare agreement between airlines.
+            Values: Y (yes), N (no), or null (unknown).
+
+        - name: stops
+          description: >
+            Number of intermediate stops between origin and destination.
+            0 indicates a direct/non-stop flight.
+
+        - name: year
+          description: Year extracted from flight_date for partitioning and analysis.
+
+        - name: month
+          description: Month number (1-12) extracted from flight_date.
+
+        - name: day_of_month
+          description: Day of month (1-31) extracted from flight_date.
+
+        - name: quarter
+          description: Calendar quarter (1-4) calculated from flight_date.
